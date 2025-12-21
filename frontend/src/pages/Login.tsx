@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { Input } from '../components/ui/input'
 import { Button } from '../components/ui/button'
@@ -7,6 +8,9 @@ import { Badge } from '../components/ui/badge'
 
 export default function LoginPage() {
   const { login } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const from = (location.state as { from?: { pathname?: string } } | undefined)?.from?.pathname ?? '/'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -19,6 +23,7 @@ export default function LoginPage() {
     try {
       await login(email, password)
       setMessage('Connexion réussie')
+      navigate(from, { replace: true })
     } catch (err) {
       if (err instanceof Error) {
         setMessage(err.message)

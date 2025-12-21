@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import LoginPage from '../Login'
@@ -22,7 +23,11 @@ describe('LoginPage', () => {
     const login = vi.fn().mockResolvedValue({ access: 'a', refresh: 'r' })
     mockedUseAuth.mockReturnValue({ tokens: {}, authenticated: false, login, logout })
 
-    render(<LoginPage />)
+    render(
+      <MemoryRouter initialEntries={['/login']}>
+        <LoginPage />
+      </MemoryRouter>,
+    )
 
     await userEvent.type(screen.getByPlaceholderText('demo@example.com'), 'demo@example.com')
     await userEvent.type(screen.getByPlaceholderText('••••••••'), 'secret')
@@ -36,7 +41,11 @@ describe('LoginPage', () => {
     const login = vi.fn().mockRejectedValue(new Error('mauvais identifiants'))
     mockedUseAuth.mockReturnValue({ tokens: {}, authenticated: false, login, logout })
 
-    render(<LoginPage />)
+    render(
+      <MemoryRouter initialEntries={['/login']}>
+        <LoginPage />
+      </MemoryRouter>,
+    )
 
     await userEvent.type(screen.getByPlaceholderText('demo@example.com'), 'demo@example.com')
     await userEvent.type(screen.getByPlaceholderText('••••••••'), 'wrong')
