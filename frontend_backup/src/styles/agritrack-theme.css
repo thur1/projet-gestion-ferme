@@ -1,0 +1,319 @@
+/**
+ * AgriTrack Pro - Design System
+ * Identité visuelle optimisée pour gestion de ferme
+ */
+
+:root {
+  /* === COULEURS AGRITRACK PRO === */
+  
+  /* Vert Forêt - Croissance & Santé */
+  --agri-green-50: #f0f9f3;
+  --agri-green-100: #dcf3e9;
+  --agri-green-200: #bbe7d3;
+  --agri-green-300: #86d3b3;
+  --agri-green-400: #48bb8f;
+  --agri-green-500: #2e8b57; /* Couleur principale */
+  --agri-green-600: #256f46;
+  --agri-green-700: #1f593a;
+  --agri-green-800: #1b4730;
+  --agri-green-900: #183b29;
+
+  /* Orange Terre - Chaleur & Énergie */
+  --agri-orange-50: #fff8f0;
+  --agri-orange-100: #ffeedd;
+  --agri-orange-200: #ffd9bb;
+  --agri-orange-300: #ffbe8e;
+  --agri-orange-400: #ffa35f;
+  --agri-orange-500: #ffb74d; /* Accent principal */
+  --agri-orange-600: #f59a31;
+  --agri-orange-700: #d67821;
+  --agri-orange-800: #b05e1d;
+  --agri-orange-900: #8f4d1c;
+
+  /* Blanc Cassé - Propreté */
+  --agri-ivory: #faf9f6;
+  --agri-ivory-dark: #f5f4f1;
+
+  /* Sémantique Agriculture */
+  --agri-success: var(--agri-green-500);
+  --agri-warning: var(--agri-orange-500);
+  --agri-danger: #dc2626;
+  --agri-info: #3b82f6;
+
+  /* === TYPOGRAPHIE === */
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Tailles (mobile-first) */
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.875rem;   /* 14px */
+  --text-base: 1rem;     /* 16px */
+  --text-lg: 1.125rem;   /* 18px */
+  --text-xl: 1.25rem;    /* 20px */
+  --text-2xl: 1.5rem;    /* 24px */
+  --text-3xl: 1.875rem;  /* 30px */
+
+  /* === ESPACEMENTS === */
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3rem;    /* 48px */
+
+  /* === BORDURES & OMBRES === */
+  --radius-sm: 0.375rem;   /* 6px */
+  --radius-md: 0.5rem;     /* 8px */
+  --radius-lg: 0.75rem;    /* 12px */
+  --radius-xl: 1rem;       /* 16px */
+  --radius-2xl: 1.5rem;    /* 24px */
+  --radius-full: 9999px;
+
+  /* Ombres douces (neumorphisme) */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Ombre verte pour éléments primaires */
+  --shadow-green: 0 4px 14px 0 rgba(46, 139, 87, 0.25);
+  --shadow-orange: 0 4px 14px 0 rgba(255, 183, 77, 0.25);
+
+  /* === TRANSITIONS === */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* === Z-INDEX === */
+  --z-dropdown: 1000;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+
+  /* === TAILLES TACTILES (44x44px minimum) === */
+  --touch-target-min: 2.75rem; /* 44px */
+  --button-height-sm: 2.5rem;  /* 40px */
+  --button-height-md: 2.75rem; /* 44px */
+  --button-height-lg: 3.5rem;  /* 56px */
+}
+
+/* === MODE SOMBRE (OPTIONNEL) === */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --agri-ivory: #1a1a1a;
+    --agri-ivory-dark: #2a2a2a;
+  }
+}
+
+/* === CLASSES UTILITAIRES AGRITRACK === */
+
+/* Bouton principal AgriTrack */
+.btn-agri-primary {
+  background: linear-gradient(135deg, var(--agri-green-500) 0%, var(--agri-green-600) 100%);
+  color: white;
+  font-weight: var(--font-weight-semibold);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-green);
+  transition: all var(--transition-base);
+  border: none;
+  cursor: pointer;
+  min-height: var(--button-height-md);
+}
+
+.btn-agri-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg), var(--shadow-green);
+}
+
+.btn-agri-primary:active {
+  transform: translateY(0);
+}
+
+/* Bouton secondaire */
+.btn-agri-secondary {
+  background: var(--agri-ivory);
+  color: var(--agri-green-700);
+  font-weight: var(--font-weight-medium);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--agri-green-200);
+  transition: all var(--transition-base);
+  cursor: pointer;
+  min-height: var(--button-height-md);
+}
+
+.btn-agri-secondary:hover {
+  background: var(--agri-green-50);
+  border-color: var(--agri-green-400);
+}
+
+/* Carte métrique */
+.card-metric {
+  background: white;
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+  border: 1px solid rgba(46, 139, 87, 0.1);
+}
+
+.card-metric:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* Badge de statut */
+.badge-success {
+  background: var(--agri-green-100);
+  color: var(--agri-green-700);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.badge-warning {
+  background: var(--agri-orange-100);
+  color: var(--agri-orange-700);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.badge-danger {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Input avec unités */
+.input-farm {
+  display: flex;
+  align-items: center;
+  background: var(--agri-ivory);
+  border: 2px solid var(--agri-green-200);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  transition: all var(--transition-fast);
+  min-height: var(--touch-target-min);
+}
+
+.input-farm:focus-within {
+  border-color: var(--agri-green-500);
+  box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+}
+
+.input-farm input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: var(--text-base);
+}
+
+.input-farm .unit {
+  color: var(--agri-green-600);
+  font-weight: var(--font-weight-medium);
+  margin-left: var(--space-2);
+}
+
+/* Indicateur hors ligne */
+.offline-indicator {
+  position: fixed;
+  bottom: var(--space-4);
+  right: var(--space-4);
+  background: var(--agri-orange-500);
+  color: white;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-xl);
+  font-weight: var(--font-weight-semibold);
+  z-index: var(--z-toast);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Alertes prioritaires */
+.alert-critical {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  border-left: 4px solid #dc2626;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-4);
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, var(--agri-orange-50) 0%, var(--agri-orange-100) 100%);
+  border-left: 4px solid var(--agri-orange-500);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-4);
+}
+
+/* Gradient background principal */
+.bg-agri-gradient {
+  background: linear-gradient(135deg, var(--agri-ivory) 0%, white 50%, var(--agri-green-50) 100%);
+}
+
+/* Texte avec gradient */
+.text-gradient-agri {
+  background: linear-gradient(135deg, var(--agri-green-500) 0%, var(--agri-green-600) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Skeleton loading */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Contraste élevé pour soleil */
+@media (prefers-contrast: high) {
+  .card-metric,
+  .btn-agri-primary,
+  .btn-agri-secondary {
+    border-width: 3px;
+  }
+  
+  .input-farm {
+    border-width: 3px;
+  }
+}
+
+/* Optimisation performance mobile */
+@media (max-width: 768px) {
+  .card-metric {
+    padding: var(--space-4);
+  }
+  
+  .btn-agri-primary,
+  .btn-agri-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+}

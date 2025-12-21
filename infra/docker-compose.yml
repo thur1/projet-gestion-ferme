@@ -19,21 +19,28 @@ services:
       timeout: 5s
       retries: 5
 
-  # Backend API
+  # Backend API (Django)
   backend:
     build:
-      context: ../backend
+      context: ../backend_django
       dockerfile: ../infra/Dockerfile
     container_name: ferme_backend
     ports:
-      - "3000:3000"
+      - "8000:8000"
     environment:
-      NODE_ENV: production
-      PORT: 3000
-      DATABASE_URL: postgresql://user:password@database:5432/ferme_db
+      DJANGO_SECRET_KEY: change-me
+      DJANGO_DEBUG: "false"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1"
+      DB_ENGINE: postgres
+      POSTGRES_DB: ferme_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_HOST: database
+      POSTGRES_PORT: 5432
     depends_on:
       database:
         condition: service_healthy
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     restart: unless-stopped
 
 volumes:

@@ -1,22 +1,24 @@
-# Backend Dockerfile
-FROM node:24-alpine
+# Backend Django Dockerfile
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+		PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Install system deps
+RUN apt-get update \ 
+	&& apt-get install -y --no-install-recommends build-essential libpq-dev \ 
+	&& rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
-RUN npm ci --only=production
+# Install Python deps
+COPY requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir --upgrade pip \ 
+	&& pip install --no-cache-dir -r requirements.txt
 
-# Copy source code
+# Copy source
 COPY . .
 
-# Build TypeScript
-RUN npm run build
+EXPOSE 8000
 
-# Expose port
-EXPOSE 3000
-
-# Start application
-CMD ["npm", "start"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

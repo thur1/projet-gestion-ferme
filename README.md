@@ -1,158 +1,212 @@
-# Projet de Gestion de Ferme
+# Projet de Gestion de Ferme 🌾
 
-Projet full-stack en mono-repo pour la gestion de ferme avec React, Node.js, et PostgreSQL.
+Application full-stack avec frontend React et backend Django/DRF pour gérer fermes, lots et stocks.
 
 ## 📁 Structure du Projet
 
 ```
 projet-de-gestion-de-ferme/
-├── frontend/           # Application React + Vite + Tailwind CSS
-├── backend/            # API Node.js + Express (Clean Architecture)
-├── infra/              # Configuration Docker (Dockerfile + docker-compose)
+├── frontend/           # React 19 + Vite + Tailwind
+├── backend_django/     # Django 4.2 + DRF + JWT
+├── infra/              # Docker, PostgreSQL, docs infra
 └── .github/
-    └── workflows/      # CI/CD GitHub Actions
+  └── workflows/      # CI/CD GitHub Actions
 ```
+
+## ✨ Fonctionnalités
+
+### 🔐 Authentification
+- Inscription/connexion via API Django `/api/auth/`
+- JWT (access/refresh) avec SimpleJWT
+- Routes protégées côté frontend
+
+### 🌾 Gestion des Fermes
+- Création/gestion de fermes
+- Multi-ferme par utilisateur
+
+### 🐔 Gestion des Lots
+- Lots par unité/espèce
+- Suivi journalier (mortalité, alimentation, œufs/lait)
+
+### 📦 Gestion des Stocks
+- Articles, mouvements, alertes seuil
 
 ## 🚀 Démarrage Rapide
 
 ### Prérequis
-
-- Node.js 24.x ou supérieur
+- Node.js 24.x (frontend)
+- Python 3.11+ (backend_django)
+- PostgreSQL (local ou conteneur)
 - Docker & Docker Compose (optionnel)
-- Git
 
 ### Installation
-
-1. **Cloner le projet**
+1. Cloner
 ```bash
-git clone <repository-url>
-cd projet-de-gestion-de-ferme
+git clone https://github.com/thur1/projet-gestion-ferme.git
+cd projet-gestion-ferme
 ```
 
-2. **Installer les dépendances**
+2. Backend Django
+```bash
+cd backend_django
+python -m venv .venv
+.venv/Scripts/activate  # ou source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+# Ajuster DB_ENGINE/postgres si besoin
+python manage.py migrate
+python manage.py createsuperuser  # optionnel
+```
 
-Frontend:
+3. Frontend
 ```bash
 cd frontend
 npm install
+cp .env.example .env.local
+```
+Variables principales :
+```env
+VITE_API_BASE_URL=http://127.0.0.1:8000/api/
+VITE_APP_ENV=development
 ```
 
-Backend:
-```bash
-cd backend
-npm install
-```
+4. Base de données
+Les migrations Django créent le schéma automatiquement (`python manage.py migrate`).
 
 ### Développement Local
 
-#### Frontend (React + Vite)
+Backend Django
+```bash
+cd backend_django
+python manage.py runserver 8000
+# API: http://127.0.0.1:8000/api/
+```
+
+Frontend
 ```bash
 cd frontend
 npm run dev
+# App: http://127.0.0.1:5173/
 ```
-➡️ Application disponible sur http://localhost:5173
 
-#### Backend (Node.js + Express)
+### Docker
 ```bash
-cd backend
-npm run dev
+cd infra
+docker-compose up -d
 ```
-➡️ API disponible sur http://localhost:3000
+Services :
+- Backend Django : http://localhost:8000
+- PostgreSQL : localhost:5432
 
-### Avec Docker
+## 🏗️ Architecture Technique
 
-Lancer tous les services (backend + base de données):
+### Frontend
+- React 19 (TS) + Vite 7.2
+- Tailwind CSS 4.1
+- React Router 7
+- State/query : React Query + Context
+
+### Backend Django
+- Django 4.2 + DRF
+- Auth : SimpleJWT (access/refresh)
+- DB : PostgreSQL (ou SQLite par défaut)
+- Schéma principal : Enterprise, Farm, Unit, Species, Lot, LotDailyRecord, HealthEvent, StockItem, StockMovement
+
+### Base de Données (PostgreSQL ou SQLite)
+
+- Par défaut : SQLite (dev/CI) ; pour PostgreSQL, définir `DB_ENGINE=postgres` et les variables `POSTGRES_*`.
+- Schéma géré par les migrations Django (voir `backend_django/apps/core/models.py`).
+- Entités principales : Enterprise, Membership, Farm, Species, Unit, Lot, LotDailyRecord, HealthEvent, StockItem, StockMovement.
+
+## 📚 Documentation API
+
+### Endpoints Disponibles
+
+| Endpoint | Méthode | Description | Auth |
+|----------|---------|-------------|------|
+| `/api/auth/register/` | POST | Créer un compte | Non |
+| `/api/auth/login/` | POST | Se connecter | Non |
+| `/api/auth/refresh/` | POST | Rafraîchir le token | Non |
+| `/api/farms/` | GET/POST | Liste/Création fermes | Oui |
+| `/api/units/` | GET/POST | Unités d'élevage | Oui |
+| `/api/lots/` | GET/POST | Lots | Oui |
+| `/api/stock-items/` | GET/POST | Articles de stock | Oui |
+| `/api/dashboard/summary/` | GET | KPIs fermes | Oui |
+
+### Exemples de requêtes (Django API)
+
+Créer une ferme :
+```bash
+curl -X POST http://127.0.0.1:8000/api/farms/ \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Ferme Demo","enterprise":"<enterprise_id>"}'
+```
+
+Dashboard summary :
+```bash
+curl "http://127.0.0.1:8000/api/dashboard/summary/?farm_id=<id>" \
+  -H "Authorization: Bearer <access_token>"
+```
+
+## 🧪 Tests
+
+### Backend Django
+```bash
+cd backend_django
+python manage.py test
+```
+
+### Frontend
+```bash
+cd frontend
+npm run lint
+npm run build
+```
+
+## 🐳 Docker
+
+Backend Django + Postgres via compose :
 ```bash
 cd infra
 docker-compose up -d
 ```
 
-Services disponibles:
-- Backend API: http://localhost:3000
-- PostgreSQL: localhost:5432
+## 📦 Build Production
 
-## 🏗️ Architecture
+- Frontend : `npm run build` (dist/)
+- Backend Django : `python manage.py runserver 0.0.0.0:8000` (ou `gunicorn backend_django.wsgi:application --bind 0.0.0.0:8000` si installé)
 
-### Frontend
-- **Framework**: React 19 avec TypeScript
-- **Build Tool**: Vite
-- **Styling**: Tailwind CSS
-- **Linting**: ESLint
+## 🚥 CI/CD
 
-### Backend (Clean Architecture)
-
-```
-backend/src/
-├── domain/              # Entités et interfaces métier
-│   ├── entities/        # Farm, Animal, etc.
-│   └── repositories/    # Interfaces de repositories
-├── application/         # Cas d'usage (Use Cases)
-│   └── use-cases/       # GetAllFarms, CreateFarm, etc.
-├── infrastructure/      # Implémentations techniques
-│   └── repositories/    # InMemoryFarmRepository, PostgresFarmRepository
-└── presentation/        # Couche HTTP
-    ├── controllers/     # FarmController
-    └── routes/          # Définition des routes
-```
-
-**Principe**: La logique métier (domain) ne dépend d'aucune couche externe.
-
-### Infrastructure
-- **Base de données**: PostgreSQL 16
-- **Conteneurisation**: Docker
-- **Orchestration**: Docker Compose
-
-## 📝 Scripts Disponibles
-
-### Frontend
-- `npm run dev` - Serveur de développement
-- `npm run build` - Build de production
-- `npm run lint` - Vérification du code
-- `npm run preview` - Prévisualisation du build
-
-### Backend
-- `npm run dev` - Serveur de développement avec hot-reload
-- `npm run build` - Compilation TypeScript
-- `npm start` - Démarrage en production
-- `npm run lint` - Vérification du code
-- `npm test` - Lancer les tests
-
-## 🧪 Tests & CI/CD
-
-GitHub Actions CI configuré pour:
-- ✅ Build frontend et backend
-- ✅ Linting
-- ✅ Tests unitaires
-- ✅ Build Docker
-
-Le pipeline se déclenche sur les push/PR vers `main` et `develop`.
+Workflow GitHub Actions (`.github/workflows/ci.yml`) : build/lint frontend, tests backend Django et build image Docker.
 
 ## 🔧 Configuration
 
-### Variables d'environnement
-
-Backend (`.env`):
+Variables principales (backend_django `.env`) :
 ```env
-NODE_ENV=development
-PORT=3000
-DATABASE_URL=postgresql://user:password@localhost:5432/ferme_db
+DJANGO_SECRET_KEY=change-me
+DJANGO_DEBUG=false
+DB_ENGINE=postgres
+POSTGRES_DB=ferme_db
+POSTGRES_USER=user
+POSTGRES_PASSWORD=password
+POSTGRES_HOST=database
+POSTGRES_PORT=5432
+DJANGO_ALLOWED_HOSTS=127.0.0.1,localhost
 ```
-
-Voir `backend/.env.example` pour plus de détails.
 
 ## 📚 Documentation
 
-- [Frontend README](./frontend/README.md)
-- [Backend README](./backend/README.md)
-- [Infrastructure README](./infra/README.md)
+- Frontend : `frontend/README.md`
+- Backend Django : admin auto-documenté + `/api/docs/` (Swagger) via DRF Spectacular
+- Infra : `infra/README.md`
 
 ## 🤝 Contribution
 
-1. Fork le projet
-2. Créer une branche (`git checkout -b feature/amazing-feature`)
-3. Commit les changements (`git commit -m 'Add amazing feature'`)
-4. Push vers la branche (`git push origin feature/amazing-feature`)
-5. Ouvrir une Pull Request
+1. Fork
+2. Branche feature
+3. PR
 
 ## 📄 Licence
 

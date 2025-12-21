@@ -1,10 +1,10 @@
 # Docker Infrastructure
 
-This directory contains Docker configuration files for the project.
+This directory contains Docker configuration files for the project (backend Django + PostgreSQL).
 
 ## Files
 
-- `Dockerfile` - Multi-stage build for the backend application
+- `Dockerfile` - Python 3.11 image for the Django backend
 - `docker-compose.yml` - Orchestrates backend and PostgreSQL database
 
 ## Usage
@@ -37,10 +37,9 @@ docker-compose up -d --build
 - **Password**: password
 - **Database**: ferme_db
 
-### Backend API
-- **Port**: 3000
-- **Health Check**: http://localhost:3000/health
-- **API**: http://localhost:3000/api/farms
+### Backend API (Django)
+- **Port**: 8000
+- **API**: http://localhost:8000/api/
 
 ## Environment Variables
 
