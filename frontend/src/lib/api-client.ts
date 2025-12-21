@@ -115,10 +115,23 @@ export type DashboardSummary = {
   farms_total?: number
   headcount_total?: number
   mortality_rate?: number
+  stock_alerts?: Array<{ id: string; name: string; quantity: number; unit: string; alert_threshold: number }>
 }
 
-export function fetchDashboardSummary() {
-  return requestAuth<DashboardSummary>('dashboard/summary/')
+export interface Farm {
+  id: string
+  name: string
+  location?: string
+  enterprise: string
+}
+
+export function listFarms() {
+  return requestAuth<Farm[]>('farms/')
+}
+
+export function fetchDashboardSummary(farmId: string) {
+  const search = new URLSearchParams({ farm_id: farmId })
+  return requestAuth<DashboardSummary>(`dashboard/summary/?${search.toString()}`)
 }
 
 // Types métier (minimaux)
