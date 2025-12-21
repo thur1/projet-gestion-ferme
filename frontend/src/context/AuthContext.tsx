@@ -1,11 +1,12 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useMemo, useState } from 'react'
-import { clearTokens, getTokens, login as apiLogin, storeTokens, type LoginResponse } from '../lib/api-client'
+import { clearTokens, getTokens, login as apiLogin, register as apiRegister, storeTokens, type LoginResponse } from '../lib/api-client'
 
 interface AuthContextValue {
   tokens: { access?: string; refresh?: string }
   authenticated: boolean
   login: (email: string, password: string) => Promise<LoginResponse>
+  register: (email: string, password: string) => Promise<LoginResponse>
   logout: () => void
 }
 
@@ -19,6 +20,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     authenticated: Boolean(tokens.access),
     login: async (email: string, password: string) => {
       const res = await apiLogin(email, password)
+      storeTokens(res)
+      setTokens({ access: res.access, refresh: res.refresh })
+      return res
+    },
+    register: async (email: string, password: string) => {
+      const res = await apiRegister(email, password)
       storeTokens(res)
       setTokens({ access: res.access, refresh: res.refresh })
       return res

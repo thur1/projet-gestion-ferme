@@ -12,11 +12,11 @@ const mockedListHealthEvents = vi.mocked(listHealthEvents)
 describe('useHealthEvents', () => {
   const sampleEvents: HealthEvent[] = [
     {
-      id: 1,
-      lot: 2,
-      description: 'Vaccination annuelle',
+      id: '2',
+      lot: '2',
       event_type: 'vaccination',
       date: '2025-01-15',
+      product: 'Vaccination annuelle',
     },
   ]
 

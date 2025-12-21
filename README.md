@@ -131,6 +131,7 @@ Services :
 | `/api/units/` | GET/POST | Unités d'élevage | Oui |
 | `/api/lots/` | GET/POST | Lots | Oui |
 | `/api/stock-items/` | GET/POST | Articles de stock | Oui |
+| `/api/health-events/` | GET/POST | Évènements de santé (lot) | Oui |
 | `/api/dashboard/summary/` | GET | KPIs fermes | Oui |
 
 ### Exemples de requêtes (Django API)
@@ -147,6 +148,22 @@ Dashboard summary :
 ```bash
 curl "http://127.0.0.1:8000/api/dashboard/summary/?farm_id=<id>" \
   -H "Authorization: Bearer <access_token>"
+```
+
+Créer un évènement de santé :
+```bash
+curl -X POST http://127.0.0.1:8000/api/health-events/ \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "lot": "<lot_uuid>",
+    "date": "2025-01-05",
+    "event_type": "vaccination",
+    "product": "Vaccin X",
+    "dose": "10ml",
+    "veterinarian": "Dr Vet",
+    "notes": "RAS"
+  }'
 ```
 
 ## 🧪 Tests

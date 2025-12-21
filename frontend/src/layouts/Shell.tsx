@@ -6,8 +6,12 @@ import { useAuth } from '../context/AuthContext'
 
 const navItems = [
   { to: '/', label: 'Dashboard' },
+  { to: '/units', label: 'Unités' },
   { to: '/lots', label: 'Lots' },
   { to: '/sante', label: 'Santé' },
+  { to: '/alimentation', label: 'Alimentation' },
+  { to: '/reproduction', label: 'Reproduction' },
+  { to: '/finances', label: 'Finances' },
   { to: '/stock', label: 'Stock' },
 ]
 

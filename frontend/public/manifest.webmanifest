@@ -1,0 +1,9 @@
+{
+  "name": "Projet Gestion de Ferme",
+  "short_name": "Ferme",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f7f8",
+  "theme_color": "#3a9f74",
+  "icons": []
+}

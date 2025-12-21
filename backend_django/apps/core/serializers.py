@@ -8,6 +8,8 @@ from .models import (
     Lot,
     LotDailyRecord,
     HealthEvent,
+    ReproductionEvent,
+    FinancialEntry,
     StockItem,
     StockMovement,
 )
@@ -79,6 +81,22 @@ class HealthEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = HealthEvent
         fields = ['id', 'lot', 'date', 'event_type', 'product', 'dose', 'veterinarian', 'notes', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class ReproductionEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReproductionEvent
+        fields = [
+            'id', 'lot', 'date', 'event_type', 'gestation_days', 'born_alive', 'born_dead', 'notes', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class FinancialEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FinancialEntry
+        fields = ['id', 'farm', 'lot', 'date', 'entry_type', 'category', 'amount', 'notes', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
 

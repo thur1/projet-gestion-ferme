@@ -1,5 +1,5 @@
 ## Plan de développement (élevage) – Mise à jour Phase 2
-
+![alt text](image.png)
 ### 1. Vision produit (élevage uniquement)
 Objectif : plateforme de gestion multi-fermes / multi-espèces utilisable sur le terrain, par du personnel non technique, avec traçabilité complète.
 Espèces couvertes : volaille (chair, pondeuses), porcin, bovin viande, bovin laitier, autres ruminants (optionnel).
@@ -37,27 +37,25 @@ Registre sanitaire, registre d’élevage, rapports véto, exports officiels.
 
 ### 10. Roadmap
 - Phase 1 (MVP volaille/bovin) ✅ : lots, santé, alimentation, dashboard, PWA offline, auth (remplacée par JWT DRF en phase 2), design system.
-- Phase 2 (en cours) 🚧 : aligner frontend sur backend Django (JWT), routes `/api/auth/login|register|refresh`, ressources farms/units/lots/stock, sécuriser appels, initialiser données de base (enterprise/farm/species), affichage liste/CRUD minimal dans frontend.
+- Phase 2 (en cours) 🚧 : frontend aligné sur backend Django (JWT) avec routes `/api/auth/login|register|refresh`, données de base seedées (enterprise/farm/species), CRUD minimal fermes/unités/lots opérationnel (création unités + lots depuis UI), liste santé corrigée (params `undefined` retirés), appels sécurisés sur `/api/`.
 - Phase 3 (premium) 🔜 : IA prédictive, IoT, mobile native.
 
 ### 11. Phase 2 – plan d’action détaillé
-1) Auth & config
-	- Basculer `VITE_API_BASE_URL` vers `http://127.0.0.1:8000/api/`.
-	- Adapter service auth frontend pour JWT DRF (`/auth/login/`, `/auth/register/`, `/auth/refresh/`).
-	- Stockage tokens (access/refresh) + refresh auto.
-2) Connexions API métier
-	- Endpoints farms/units/lots/stock alignés sur backend Django (DRF) avec headers `Authorization: Bearer <token>`.
-	- Health check `/api/health/` pour état backend.
-3) Données de base
-	- Créer species de référence (poultry, pig, bovine) via admin ou fixtures.
-	- Créer enterprise + farm + unit pour tests.
-4) Frontend
-	- Adapter pages Login/Register pour le flux JWT.
-	- Lister fermes / lots / stock en lecture (MVP) à partir de l’API Django.
-	- Gérer erreurs réseau (“Failed to fetch”) et état loading.
-5) QA
-	- Vérifier login/logout/refresh.
-	- Build frontend (`npm run build`) et tests manuels basiques.
+1) Auth & config (fait)
+	- `VITE_API_BASE_URL` pointé sur `http://127.0.0.1:8000/api/` ; flux JWT DRF (`/auth/login|register|refresh`) opérationnel.
+	- Tokens access/refresh stockés côté frontend avec refresh auto.
+2) Connexions API métier (fait pour lots/unités, en cours pour stock)
+	- Endpoints farms/units/lots/stock alignés DRF avec `Authorization: Bearer <token>`.
+	- Health check `/api/health/` vérifié ; bug params `undefined` corrigé pour santé.
+3) Données de base (fait)
+	- Species de référence (poultry, pig, bovine) + enterprise/farm/unit seedées.
+4) Frontend (partiel)
+	- Login/Register adaptés JWT.
+	- Fermes/listes OK ; création unités et lots disponible depuis UI (formulaires). Stock en lecture + création mouvements à renforcer.
+	- Gestion erreurs réseau et loaders en place sur pages principales.
+5) QA (en cours)
+	- Login/logout/refresh vérifiés manuellement ; tests unitaires santé passent (`SantePage`).
+	- À faire : tests UI pour création unités/lots, build frontend (`npm run build`).
 
 ### 12. Checklist
-✔ Multi-fermes / multi-espèces (modèle) · ✔ PWA offline · ✔ Traçabilité · ⏳ Connexion frontend ↔ backend Django (phase 2 en cours) · ⏳ CRUD métier alignés DRF.
+✔ Multi-fermes / multi-espèces (modèle) · ✔ PWA offline · ✔ Traçabilité · ✔ Connexion frontend ↔ backend Django (auth + liste) · 🚧 CRUD métier alignés DRF (unités/lots OK, stock à compléter).

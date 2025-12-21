@@ -1,11 +1,20 @@
 import { useEffect, useState } from 'react'
 import { fetchDashboardSummary, listFarms, type DashboardSummary, type Farm } from '../lib/api-client'
 
-export function useDashboardSummary() {
+type DashboardSummaryResult = {
+  data: DashboardSummary | null
+  farms: Farm[]
+  loading: boolean
+  error: string
+  selectedFarm: string | null
+}
+
+export function useDashboardSummary(selectedFarmId?: string): DashboardSummaryResult {
   const [data, setData] = useState<DashboardSummary | null>(null)
   const [farms, setFarms] = useState<Farm[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
+  const [selected, setSelected] = useState<string | null>(null)
 
   useEffect(() => {
     let mounted = true
@@ -21,7 +30,9 @@ export function useDashboardSummary() {
           return
         }
 
-        const summary = await fetchDashboardSummary(farmsRes[0].id)
+        const farmId = selectedFarmId || farmsRes[0].id
+        setSelected(farmId)
+        const summary = await fetchDashboardSummary(farmId)
         if (!mounted) return
         setData(summary)
       } catch (err) {
@@ -35,9 +46,9 @@ export function useDashboardSummary() {
     load()
 
     return () => {
-        mounted = false
+      mounted = false
     }
-  }, [])
+  }, [selectedFarmId])
 
-  return { data, farms, loading, error }
+  return { data, farms, loading, error, selectedFarm: selected }
 }

@@ -13,15 +13,17 @@ const mockedUseAuth = vi.mocked(useAuth)
 
 describe('LoginPage', () => {
   const logout = vi.fn()
+  const register = vi.fn()
 
   beforeEach(() => {
     mockedUseAuth.mockReset()
     logout.mockReset()
+    register.mockReset()
   })
 
   it('soumet et affiche un succès', async () => {
     const login = vi.fn().mockResolvedValue({ access: 'a', refresh: 'r' })
-    mockedUseAuth.mockReturnValue({ tokens: {}, authenticated: false, login, logout })
+    mockedUseAuth.mockReturnValue({ tokens: {}, authenticated: false, login, logout, register })
 
     render(
       <MemoryRouter initialEntries={['/login']}>
@@ -39,7 +41,7 @@ describe('LoginPage', () => {
 
   it('affiche une erreur si le login échoue', async () => {
     const login = vi.fn().mockRejectedValue(new Error('mauvais identifiants'))
-    mockedUseAuth.mockReturnValue({ tokens: {}, authenticated: false, login, logout })
+    mockedUseAuth.mockReturnValue({ tokens: {}, authenticated: false, login, logout, register })
 
     render(
       <MemoryRouter initialEntries={['/login']}>

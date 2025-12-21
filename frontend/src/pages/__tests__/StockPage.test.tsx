@@ -2,20 +2,41 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it, beforeEach, vi } from 'vitest'
 import StockPage from '../Stock'
 import { useStockItems } from '../../hooks/useStockItems'
+import { useFarms } from '../../hooks/useFarms'
+import { useStockMovements } from '../../hooks/useStockMovements'
+import { useLots } from '../../hooks/useLots'
 
 vi.mock('../../hooks/useStockItems', () => ({
   useStockItems: vi.fn(),
 }))
+vi.mock('../../hooks/useFarms', () => ({
+  useFarms: vi.fn(),
+}))
+vi.mock('../../hooks/useStockMovements', () => ({
+  useStockMovements: vi.fn(),
+}))
+vi.mock('../../hooks/useLots', () => ({
+  useLots: vi.fn(),
+}))
 
 const mockedUseStockItems = vi.mocked(useStockItems)
+const mockedUseFarms = vi.mocked(useFarms)
+const mockedUseStockMovements = vi.mocked(useStockMovements)
+const mockedUseLots = vi.mocked(useLots)
 
 describe('StockPage', () => {
   beforeEach(() => {
     mockedUseStockItems.mockReset()
+    mockedUseFarms.mockReset()
+    mockedUseStockMovements.mockReset()
+    mockedUseLots.mockReset()
   })
 
   it('affiche le chargement', () => {
-    mockedUseStockItems.mockReturnValue({ data: [], loading: true, error: '' })
+    mockedUseStockItems.mockReturnValue({ data: [], loading: true, error: '', createItem: vi.fn(), creating: false })
+    mockedUseFarms.mockReturnValue({ data: [], loading: false, error: '' })
+    mockedUseStockMovements.mockReturnValue({ data: [], loading: false, error: '', create: vi.fn(), creating: false })
+    mockedUseLots.mockReturnValue({ data: [], loading: false, error: '', create: vi.fn(), creating: false })
 
     render(<StockPage />)
 
@@ -24,7 +45,10 @@ describe('StockPage', () => {
   })
 
   it('affiche une erreur', () => {
-    mockedUseStockItems.mockReturnValue({ data: [], loading: false, error: 'rupture api' })
+    mockedUseStockItems.mockReturnValue({ data: [], loading: false, error: 'rupture api', createItem: vi.fn(), creating: false })
+    mockedUseFarms.mockReturnValue({ data: [], loading: false, error: '' })
+    mockedUseStockMovements.mockReturnValue({ data: [], loading: false, error: '', create: vi.fn(), creating: false })
+    mockedUseLots.mockReturnValue({ data: [], loading: false, error: '', create: vi.fn(), creating: false })
 
     render(<StockPage />)
 
@@ -32,7 +56,10 @@ describe('StockPage', () => {
   })
 
   it('affiche un état vide', () => {
-    mockedUseStockItems.mockReturnValue({ data: [], loading: false, error: '' })
+    mockedUseStockItems.mockReturnValue({ data: [], loading: false, error: '', createItem: vi.fn(), creating: false })
+    mockedUseFarms.mockReturnValue({ data: [], loading: false, error: '' })
+    mockedUseStockMovements.mockReturnValue({ data: [], loading: false, error: '', create: vi.fn(), creating: false })
+    mockedUseLots.mockReturnValue({ data: [], loading: false, error: '', create: vi.fn(), creating: false })
 
     render(<StockPage />)
 
@@ -43,21 +70,29 @@ describe('StockPage', () => {
     mockedUseStockItems.mockReturnValue({
       data: [
         {
-          id: 1,
+          id: '1',
+          farm: 'f1',
           name: 'Maïs',
+          item_type: 'feed',
           quantity: 50,
           unit: 'kg',
-          category: 'alimentation',
+          alert_threshold: 10,
         },
       ],
       loading: false,
       error: '',
+      createItem: vi.fn(),
+      creating: false,
     })
+    mockedUseFarms.mockReturnValue({ data: [{ id: 'f1', name: 'Ferme Nord', enterprise: 'ent', location: '' }], loading: false, error: '' })
+    mockedUseStockMovements.mockReturnValue({ data: [], loading: false, error: '', create: vi.fn(), creating: false })
+    mockedUseLots.mockReturnValue({ data: [], loading: false, error: '', create: vi.fn(), creating: false })
 
     render(<StockPage />)
 
-    expect(screen.getByText(/maïs/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/maïs/i)[0]).toBeInTheDocument()
     expect(screen.getByText(/50 kg/i)).toBeInTheDocument()
-    expect(screen.getByText(/alimentation/i)).toBeInTheDocument()
+    expect(screen.getByText(/feed/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/ferme nord/i).length).toBeGreaterThanOrEqual(1)
   })
 })

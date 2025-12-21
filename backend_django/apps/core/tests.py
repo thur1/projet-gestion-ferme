@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 
-from apps.core.models import Enterprise, Farm, Species, Unit, Lot, StockItem, Membership
+from apps.core.models import Enterprise, Farm, Species, Unit, Lot, StockItem, Membership, HealthEvent
 
 User = get_user_model()
 
@@ -69,3 +69,42 @@ class CoreApiTests(APITestCase):
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn('total_lots', res.data)
+
+    def test_create_health_event(self):
+        url = reverse('health-event-list')
+        payload = {
+            'lot': str(self.lot.id),
+            'date': '2025-01-05',
+            'event_type': 'vaccination',
+            'product': 'Vaccin X',
+            'dose': '10ml',
+            'veterinarian': 'Dr Vet',
+            'notes': 'RAS'
+        }
+        res = self.client.post(url, payload, format='json')
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(HealthEvent.objects.filter(id=res.data['id'], lot=self.lot).exists())
+
+    def test_user_role_cannot_create_health_event(self):
+        member = User.objects.create_user(email='member2@example.com', password='password123')
+        Membership.objects.create(user=member, enterprise=self.enterprise, role='user')
+        self.client.force_authenticate(member)
+
+        url = reverse('health-event-list')
+        payload = {
+            'lot': str(self.lot.id),
+            'date': '2025-01-05',
+            'event_type': 'vaccination'
+        }
+        res = self.client.post(url, payload, format='json')
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_health_event_rejects_invalid_choice(self):
+        url = reverse('health-event-list')
+        payload = {
+            'lot': str(self.lot.id),
+            'date': '2025-01-05',
+            'event_type': 'unknown'
+        }
+        res = self.client.post(url, payload, format='json')
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)

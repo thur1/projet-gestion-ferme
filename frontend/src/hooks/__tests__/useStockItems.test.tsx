@@ -12,11 +12,13 @@ const mockedListStockItems = vi.mocked(listStockItems)
 describe('useStockItems', () => {
   const sampleItems: StockItem[] = [
     {
-      id: 1,
+      id: '1',
+      farm: 'f1',
       name: 'Maïs',
+      item_type: 'feed',
       quantity: 120,
       unit: 'kg',
-      category: 'alimentation',
+      alert_threshold: 10,
     },
   ]
 

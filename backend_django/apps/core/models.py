@@ -133,6 +133,62 @@ class HealthEvent(UUIDModel, TimeStampedModel, SoftDeleteModel):
         return f"{self.event_type} {self.date}"
 
 
+class ReproductionEvent(UUIDModel, TimeStampedModel, SoftDeleteModel):
+    EVENT_TYPES = (
+        ('insemination', 'Insémination'),
+        ('saillie', 'Saillie'),
+        ('gestation_check', 'Contrôle gestation'),
+        ('mise_bas', 'Mise bas'),
+    )
+
+    lot = models.ForeignKey(Lot, related_name='reproduction_events', on_delete=models.CASCADE)
+    date = models.DateField()
+    event_type = models.CharField(max_length=20, choices=EVENT_TYPES)
+    gestation_days = models.PositiveIntegerField(null=True, blank=True)
+    born_alive = models.PositiveIntegerField(default=0)
+    born_dead = models.PositiveIntegerField(default=0)
+    notes = models.TextField(blank=True)
+
+    objects = SoftDeleteManager()
+
+    class Meta:
+        ordering = ['-date', '-created_at']
+
+    def __str__(self):
+        return f"{self.event_type} {self.date}"
+
+
+class FinancialEntry(UUIDModel, TimeStampedModel, SoftDeleteModel):
+    ENTRY_TYPES = (
+        ('cost', 'Cost'),
+        ('revenue', 'Revenue'),
+    )
+
+    CATEGORY_CHOICES = (
+        ('feed', 'Feed'),
+        ('vet', 'Vet'),
+        ('labor', 'Labor'),
+        ('sale', 'Sale'),
+        ('other', 'Other'),
+    )
+
+    farm = models.ForeignKey(Farm, related_name='financial_entries', on_delete=models.CASCADE)
+    lot = models.ForeignKey(Lot, related_name='financial_entries', on_delete=models.SET_NULL, null=True, blank=True)
+    date = models.DateField()
+    entry_type = models.CharField(max_length=10, choices=ENTRY_TYPES)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    notes = models.TextField(blank=True)
+
+    objects = SoftDeleteManager()
+
+    class Meta:
+        ordering = ['-date', '-created_at']
+
+    def __str__(self):
+        return f"{self.entry_type} {self.amount}"
+
+
 class StockItem(UUIDModel, TimeStampedModel, SoftDeleteModel):
     ITEM_TYPES = (
         ('feed', 'Feed'),

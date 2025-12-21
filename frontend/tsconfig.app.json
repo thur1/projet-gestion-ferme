@@ -24,5 +24,12 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": [
+    "src/shared/**/*",
+    "src/pages/DashboardHome.tsx",
+    "src/pages/StockManagement.tsx",
+    "src/pages/ProjectsList.tsx",
+    "src/pages/ProjectCreate.tsx"
+  ]
 }

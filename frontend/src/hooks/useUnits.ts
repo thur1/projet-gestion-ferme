@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react'
-import { listStockItems, createStockItem, type StockItem, type CreateStockItemPayload } from '../lib/api-client'
+import { listUnits, createUnit, type Unit, type CreateUnitPayload } from '../lib/api-client'
 
-export function useStockItems(farmId?: string) {
-  const [data, setData] = useState<StockItem[]>([])
+export function useUnits() {
+  const [data, setData] = useState<Unit[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
   const [creating, setCreating] = useState(false)
 
   useEffect(() => {
     let mounted = true
-    const params = farmId ? { farm_id: farmId } : undefined
-    listStockItems(params)
+
+    listUnits()
       .then((res) => {
         if (!mounted) return
         setData(res)
@@ -26,14 +26,14 @@ export function useStockItems(farmId?: string) {
     return () => {
       mounted = false
     }
-  }, [farmId])
+  }, [])
 
-  const createItem = async (payload: CreateStockItemPayload) => {
+  const create = async (payload: CreateUnitPayload) => {
     setCreating(true)
     try {
-      const created = await createStockItem(payload)
+      const created = await createUnit(payload)
       setData((prev) => [created, ...prev])
-      return { success: true as const, item: created }
+      return { success: true as const, unit: created }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erreur lors de la création'
       setError(message)
@@ -43,5 +43,5 @@ export function useStockItems(farmId?: string) {
     }
   }
 
-  return { data, loading, error, createItem, creating }
+  return { data, loading, error, create, creating }
 }
