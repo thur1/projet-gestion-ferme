@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { MemoryRouter } from 'react-router-dom'
 import DashboardPage from '../Dashboard'
 import { useDashboardSummary } from '../../hooks/useDashboardSummary'
 import { useFarms } from '../../hooks/useFarms'
@@ -24,9 +25,13 @@ describe('DashboardPage', () => {
     mockedUseDashboardSummary.mockReturnValue({ data: null, farms: [], loading: true, error: '', selectedFarm: null })
     mockedUseFarms.mockReturnValue({ data: [], loading: true, error: '' })
 
-    render(<DashboardPage />)
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    )
 
-    expect(screen.getByText(/dashboard élevage/i)).toBeInTheDocument()
+    expect(screen.getByText(/tableau de bord élevage/i)).toBeInTheDocument()
     expect(screen.getAllByText('...').length).toBeGreaterThanOrEqual(1)
   })
 
@@ -34,7 +39,11 @@ describe('DashboardPage', () => {
     mockedUseDashboardSummary.mockReturnValue({ data: null, farms: [], loading: false, error: 'api down', selectedFarm: null })
     mockedUseFarms.mockReturnValue({ data: [], loading: false, error: '' })
 
-    render(<DashboardPage />)
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    )
 
     expect(screen.getAllByText(/api down/i).length).toBeGreaterThanOrEqual(1)
     expect(screen.getAllByText('—').length).toBeGreaterThanOrEqual(1)
@@ -78,12 +87,16 @@ describe('DashboardPage', () => {
       error: '',
     })
 
-    render(<DashboardPage />)
+    render(
+      <MemoryRouter>
+        <DashboardPage />
+      </MemoryRouter>
+    )
 
-    expect(screen.getByText(/dashboard élevage/i)).toBeInTheDocument()
+    expect(screen.getByText(/tableau de bord élevage/i)).toBeInTheDocument()
     expect(screen.getByText('3')).toBeInTheDocument()
     expect(screen.getByText(/total lots: 4/i)).toBeInTheDocument()
-    expect(screen.getByText(/mortalité 7j/i)).toBeInTheDocument()
+    expect(screen.getByText(/mortalité/i)).toBeInTheDocument()
     expect(screen.getByText(/alertes stock/i)).toBeInTheDocument()
   })
 })

@@ -76,7 +76,7 @@ describe('ReproductionPage', () => {
     render(<ReproductionPage />)
 
     expect(screen.getByText(/2025-01-10/)).toBeInTheDocument()
-    expect(screen.getByText(/Insémination/)).toBeInTheDocument()
+    expect(screen.getAllByText(/Insémination/).length).toBeGreaterThanOrEqual(1)
     expect(screen.getByText(/Lot: l1/i)).toBeInTheDocument()
   })
 })

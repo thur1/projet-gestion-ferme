@@ -45,7 +45,7 @@ class Membership(UUIDModel, TimeStampedModel, SoftDeleteModel):
         return f"{self.user} ({self.role})"
 
 
-class Species(UUIDModel, TimeStampedModel):
+class BreedingType(UUIDModel, TimeStampedModel):
     code = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=100)
 
@@ -53,9 +53,19 @@ class Species(UUIDModel, TimeStampedModel):
         return self.name
 
 
+class Species(UUIDModel, TimeStampedModel):
+    code = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=100)
+    breeding_type = models.ForeignKey('BreedingType', related_name='species', on_delete=models.PROTECT, null=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Unit(UUIDModel, TimeStampedModel, SoftDeleteModel):
     farm = models.ForeignKey(Farm, related_name='units', on_delete=models.CASCADE)
-    species = models.ForeignKey(Species, related_name='units', on_delete=models.PROTECT)
+    breeding_type = models.ForeignKey('BreedingType', related_name='units', on_delete=models.PROTECT, null=True)
+    species = models.ForeignKey(Species, related_name='units', on_delete=models.PROTECT, null=True, blank=True)
     name = models.CharField(max_length=255)
     capacity = models.PositiveIntegerField()
     conditions = models.JSONField(default=dict, blank=True)

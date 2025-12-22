@@ -140,6 +140,25 @@ export type DashboardSummary = {
   stock_alerts: Array<{ id: string; name: string; quantity: number; unit: string; alert_threshold: number }>
 }
 
+export interface Enterprise {
+  id: string
+  name: string
+  owner: string
+}
+
+export function listEnterprises() {
+  return requestAuth<unknown>('enterprises/').then((res) => unwrapList<Enterprise>(res))
+}
+
+export type CreateEnterprisePayload = Pick<Enterprise, 'name'>
+
+export function createEnterprise(payload: CreateEnterprisePayload) {
+  return requestAuth<Enterprise>('enterprises/', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
 export interface Farm {
   id: string
   name: string
@@ -147,31 +166,63 @@ export interface Farm {
   enterprise: string
 }
 
-export function listFarms() {
-  return requestAuth<unknown>('farms/').then((res) => unwrapList<Farm>(res))
+export function listFarms(params?: { enterprise_id?: string }) {
+  const search = params ? `?${new URLSearchParams(params as Record<string, string>).toString()}` : ''
+  return requestAuth<unknown>(`farms/${search}`).then((res) => unwrapList<Farm>(res))
+}
+
+export type CreateFarmPayload = Pick<Farm, 'enterprise' | 'name' | 'location'>
+
+export function createFarm(payload: CreateFarmPayload) {
+  return requestAuth<Farm>('farms/', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
 }
 
 export interface Species {
   id: string
   code: string
   name: string
+  breeding_type: string
 }
 
-export function listSpecies() {
-  return requestAuth<unknown>('species/').then((res) => unwrapList<Species>(res))
+export function listSpecies(params?: { breeding_type?: string }) {
+  const search = params ? `?${new URLSearchParams(params as Record<string, string>).toString()}` : ''
+  return requestAuth<unknown>(`species/${search}`).then((res) => unwrapList<Species>(res))
+}
+
+export type CreateSpeciesPayload = Pick<Species, 'code' | 'name' | 'breeding_type'>
+
+export function createSpecies(payload: CreateSpeciesPayload) {
+  return requestAuth<Species>('species/', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export interface BreedingType {
+  id: string
+  code: string
+  name: string
+}
+
+export function listBreedingTypes() {
+  return requestAuth<unknown>('breeding-types/').then((res) => unwrapList<BreedingType>(res))
 }
 
 export interface Unit {
   id: string
   farm: string
-  species: string
+  breeding_type: string
+  species?: string | null
   name: string
   capacity: number
   conditions?: Record<string, unknown>
   created_at?: string
 }
 
-export function listUnits(params?: { farm_id?: string; species?: string }) {
+export function listUnits(params?: { farm_id?: string; breeding_type?: string }) {
   const search = params ? `?${new URLSearchParams(params as Record<string, string>).toString()}` : ''
   return requestAuth<unknown>(`units/${search}`).then((res) => unwrapList<Unit>(res))
 }

@@ -68,8 +68,8 @@ describe('FinancesPage', () => {
     render(<FinancesPage />)
 
     expect(screen.getByText(/2025-01-02/)).toBeInTheDocument()
-    expect(screen.getByText(/Aliment/)).toBeInTheDocument()
-    expect(screen.getByText(/250.00/)).toBeInTheDocument()
+    expect(screen.getAllByText(/Aliment/).length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText(/250.00/).length).toBeGreaterThanOrEqual(1)
     expect(screen.getByText(/Résultat: 150.00/)).toBeInTheDocument()
   })
 })

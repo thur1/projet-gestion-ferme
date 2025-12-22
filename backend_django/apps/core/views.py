@@ -10,10 +10,10 @@ from rest_framework.views import APIView
 from rest_framework.exceptions import PermissionDenied
 
 from .models import (
-    Enterprise, Farm, Species, Unit, Lot, LotDailyRecord, HealthEvent, ReproductionEvent, FinancialEntry, StockItem, StockMovement, Membership
+    Enterprise, Farm, BreedingType, Species, Unit, Lot, LotDailyRecord, HealthEvent, ReproductionEvent, FinancialEntry, StockItem, StockMovement, Membership
 )
 from .serializers import (
-    EnterpriseSerializer, FarmSerializer, SpeciesSerializer, UnitSerializer, LotSerializer,
+    EnterpriseSerializer, FarmSerializer, BreedingTypeSerializer, SpeciesSerializer, UnitSerializer, LotSerializer,
     LotDailyRecordSerializer, HealthEventSerializer, ReproductionEventSerializer, FinancialEntrySerializer, StockItemSerializer, StockMovementSerializer,
 )
 from .permissions import IsEnterpriseMember, get_enterprise_from_obj, user_role_in_enterprise
@@ -100,10 +100,23 @@ class FarmViewSet(BaseMemberViewSet):
         return qs.order_by('name')
 
 
-class SpeciesViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class BreedingTypeViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
+    serializer_class = BreedingTypeSerializer
+    queryset = BreedingType.objects.all().order_by('code')
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class SpeciesViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
     serializer_class = SpeciesSerializer
     queryset = Species.objects.all().order_by('code')
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        breeding_type = self.request.query_params.get('breeding_type')
+        if breeding_type:
+            qs = qs.filter(breeding_type_id=breeding_type)
+        return qs
 
 
 class UnitViewSet(BaseMemberViewSet):
@@ -116,11 +129,11 @@ class UnitViewSet(BaseMemberViewSet):
     def get_queryset(self):
         qs = super().get_queryset()
         farm_id = self.request.query_params.get('farm_id')
-        species = self.request.query_params.get('species')
+        breeding_type = self.request.query_params.get('breeding_type')
         if farm_id:
             qs = qs.filter(farm_id=farm_id)
-        if species:
-            qs = qs.filter(species__code=species)
+        if breeding_type:
+            qs = qs.filter(breeding_type_id=breeding_type)
         return qs.order_by('name')
 
 

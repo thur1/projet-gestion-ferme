@@ -2,14 +2,15 @@ from rest_framework.routers import DefaultRouter
 from django.urls import path, include
 
 from .views import (
-    EnterpriseViewSet, FarmViewSet, SpeciesViewSet, UnitViewSet, LotViewSet,
+    EnterpriseViewSet, FarmViewSet, BreedingTypeViewSet, SpeciesViewSet, UnitViewSet, LotViewSet,
     LotDailyRecordViewSet, HealthEventViewSet, ReproductionEventViewSet, FinancialEntryViewSet, StockItemViewSet, StockMovementViewSet,
-    DashboardSummaryView,
+    DashboardSummaryView
 )
 
 router = DefaultRouter()
 router.register('enterprises', EnterpriseViewSet, basename='enterprise')
 router.register('farms', FarmViewSet, basename='farm')
+router.register('breeding-types', BreedingTypeViewSet, basename='breeding-type')
 router.register('species', SpeciesViewSet, basename='species')
 router.register('units', UnitViewSet, basename='unit')
 router.register('lots', LotViewSet, basename='lot')

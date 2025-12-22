@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import (
     Enterprise,
     Farm,
+    BreedingType,
     Species,
     Unit,
     Lot,
@@ -36,17 +37,24 @@ class FarmSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'updated_at']
 
 
+class BreedingTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BreedingType
+        fields = ['id', 'code', 'name', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
 class SpeciesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Species
-        fields = ['id', 'code', 'name']
-        read_only_fields = ['id', 'code', 'name']
+        fields = ['id', 'code', 'name', 'breeding_type', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
 
 
 class UnitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Unit
-        fields = ['id', 'farm', 'species', 'name', 'capacity', 'conditions', 'created_at', 'updated_at']
+        fields = ['id', 'farm', 'breeding_type', 'species', 'name', 'capacity', 'conditions', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
 
@@ -62,8 +70,9 @@ class LotSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         unit = attrs.get('unit') or getattr(self.instance, 'unit', None)
         species = attrs.get('species') or getattr(self.instance, 'species', None)
-        if unit and species and unit.species_id != species.id:
-            raise serializers.ValidationError('La species du lot doit correspondre à celle de l\'unité.')
+        if unit and species:
+            if unit.breeding_type_id and species.breeding_type_id and unit.breeding_type_id != species.breeding_type_id:
+                raise serializers.ValidationError("L'espèce du lot doit appartenir au type d'élevage de l'unité.")
         return attrs
 
 

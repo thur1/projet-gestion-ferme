@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useUnits } from '../hooks/useUnits'
 import { useFarms } from '../hooks/useFarms'
 import { useSpecies } from '../hooks/useSpecies'
+import { useBreedingTypes } from '../hooks/useBreedingTypes'
 import { Badge } from '../components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
@@ -10,13 +11,19 @@ import { Button } from '../components/ui/button'
 export default function UnitsPage() {
   const { data, loading, error, create, creating } = useUnits()
   const farms = useFarms()
-  const species = useSpecies()
+  const breedingTypes = useBreedingTypes()
+  const [selectedBreedingType, setSelectedBreedingType] = useState<string>('')
+  const species = useSpecies(selectedBreedingType || undefined)
   const [selectedFarm, setSelectedFarm] = useState<string>('all')
-  const [form, setForm] = useState({ farm: '', species: '', name: '', capacity: 0 })
+  const [form, setForm] = useState({ farm: '', breeding_type: '', species: '', name: '', capacity: 0 })
   const [submitMessage, setSubmitMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null)
+  const [farmForm, setFarmForm] = useState({ name: '', location: '' })
+  const [farmMessage, setFarmMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null)
+  const [enterpriseForm, setEnterpriseForm] = useState({ name: '' })
+  const [enterpriseMessage, setEnterpriseMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null)
 
   const isLoading = loading || farms.loading || species.loading
-  const hasError = error || farms.error || species.error
+  const hasError = error || farms.error || species.error || breedingTypes.error
 
   const farmName = (id: string) => farms.data.find((f) => f.id === id)?.name || id
   const speciesLabel = (id: string) => {
@@ -28,6 +35,42 @@ export default function UnitsPage() {
     if (selectedFarm === 'all') return data
     return data.filter((unit) => unit.farm === selectedFarm)
   }, [data, selectedFarm])
+
+  const handleCreateFarm = async () => {
+    setFarmMessage(null)
+    if (!farmForm.name.trim()) {
+      setFarmMessage({ type: 'error', text: 'Nom de la ferme requis' })
+      return
+    }
+    if (!farms.enterprises.length) {
+      setFarmMessage({ type: 'error', text: 'Créez d’abord une entreprise' })
+      return
+    }
+    const result = await farms.create({ name: farmForm.name.trim(), location: farmForm.location.trim() })
+    if (result.success) {
+      setFarmMessage({ type: 'success', text: 'Ferme créée' })
+      setFarmForm({ name: '', location: '' })
+      setForm((prev) => ({ ...prev, farm: result.farm.id }))
+      setSelectedFarm(result.farm.id)
+    } else {
+      setFarmMessage({ type: 'error', text: result.error })
+    }
+  }
+
+  const handleCreateEnterprise = async () => {
+    setEnterpriseMessage(null)
+    if (!enterpriseForm.name.trim()) {
+      setEnterpriseMessage({ type: 'error', text: 'Nom requis' })
+      return
+    }
+    const result = await farms.createEnterprise({ name: enterpriseForm.name.trim() })
+    if (result.success) {
+      setEnterpriseMessage({ type: 'success', text: 'Entreprise créée' })
+      setEnterpriseForm({ name: '' })
+    } else {
+      setEnterpriseMessage({ type: 'error', text: result.error })
+    }
+  }
 
   if (isLoading) {
     return (
@@ -56,7 +99,7 @@ export default function UnitsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Unités</CardTitle>
-          <CardDescription>Liste des unités par ferme/espèce.</CardDescription>
+          <CardDescription>Liste des unités par ferme/type d’Élevages.</CardDescription>
           <div className="mt-3 flex flex-wrap items-center gap-3">
             <label className="text-sm font-medium text-neutral-700" htmlFor="farm-filter">
               Filtrer par ferme
@@ -78,17 +121,86 @@ export default function UnitsPage() {
         </CardHeader>
 
         <CardContent className="space-y-4">
+          {farms.enterprises.length === 0 && (
+            <div className="space-y-3 rounded-lg border border-red-200 bg-red-50 p-4">
+              <p className="text-sm font-medium text-red-900">
+                Aucune entreprise disponible pour créer une ferme.
+              </p>
+              <div className="grid gap-3 md:grid-cols-2">
+                <label className="grid gap-1 text-sm font-medium text-neutral-800">
+                  Nom de l’entreprise
+                  <Input
+                    value={enterpriseForm.name}
+                    onChange={(e) => setEnterpriseForm({ name: e.target.value })}
+                    placeholder="Ex: Coopérative AgriTrack"
+                  />
+                </label>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button type="button" onClick={handleCreateEnterprise} disabled={farms.creatingEnterprise}>
+                  {farms.creatingEnterprise ? 'Création...' : 'Créer une entreprise'}
+                </Button>
+                {enterpriseMessage && (
+                  <p
+                    className={
+                      enterpriseMessage.type === 'error' ? 'text-sm text-red-600' : 'text-sm text-green-700'
+                    }
+                  >
+                    {enterpriseMessage.text}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {farms.data.length === 0 && (
+            <div className="space-y-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
+              <p className="text-sm font-medium text-amber-900">
+                Aucune ferme disponible. Créez une ferme pour ajouter des unités.
+              </p>
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <label className="grid gap-1 text-sm font-medium text-neutral-800">
+                  Nom de la ferme
+                  <Input
+                    value={farmForm.name}
+                    onChange={(e) => setFarmForm((prev) => ({ ...prev, name: e.target.value }))}
+                    placeholder="Ferme principale"
+                  />
+                </label>
+                <label className="grid gap-1 text-sm font-medium text-neutral-800">
+                  Localisation (optionnel)
+                  <Input
+                    value={farmForm.location}
+                    onChange={(e) => setFarmForm((prev) => ({ ...prev, location: e.target.value }))}
+                    placeholder="Ville, région"
+                  />
+                </label>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button type="button" onClick={handleCreateFarm} disabled={farms.creating}>
+                  {farms.creating ? 'Création...' : 'Créer une ferme'}
+                </Button>
+                {farmMessage && (
+                  <p className={farmMessage.type === 'error' ? 'text-sm text-red-600' : 'text-sm text-green-700'}>
+                    {farmMessage.text}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
           <form
             className="grid gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4"
             onSubmit={async (e) => {
               e.preventDefault()
               setSubmitMessage(null)
-              if (!form.farm || !form.species || !form.name) {
-                setSubmitMessage({ type: 'error', text: 'Ferme, espèce et nom sont requis' })
+              if (!form.farm || !form.breeding_type || !form.species || !form.name) {
+                setSubmitMessage({ type: 'error', text: "Ferme, type d’élevage, espèce et nom sont requis" })
                 return
               }
               const result = await create({
                 farm: form.farm,
+                breeding_type: form.breeding_type,
                 species: form.species,
                 name: form.name,
                 capacity: Number(form.capacity) || 0,
@@ -96,7 +208,7 @@ export default function UnitsPage() {
               })
               if (result.success) {
                 setSubmitMessage({ type: 'success', text: 'Unité créée' })
-                setForm((prev) => ({ ...prev, name: '', capacity: 0 }))
+                setForm((prev) => ({ ...prev, name: '', capacity: 0, species: '' }))
               } else {
                 setSubmitMessage({ type: 'error', text: result.error })
               }
@@ -119,11 +231,31 @@ export default function UnitsPage() {
                 </select>
               </label>
               <label className="grid gap-1 text-sm font-medium text-neutral-800">
-                Espèce
+                Type d’Élevages
+                <select
+                  value={form.breeding_type}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setSelectedBreedingType(value)
+                    setForm((prev) => ({ ...prev, breeding_type: value, species: '' }))
+                  }}
+                  className="rounded-md border border-neutral-300 px-3 py-2 text-sm shadow-sm focus:border-brand-600 focus:outline-none"
+                >
+                  <option value="">Sélectionner</option>
+                  {breedingTypes.data.map((bt) => (
+                    <option key={bt.id} value={bt.id}>
+                      {bt.name} ({bt.code})
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="grid gap-1 text-sm font-medium text-neutral-800">
+                Espèce / catégorie
                 <select
                   value={form.species}
                   onChange={(e) => setForm((prev) => ({ ...prev, species: e.target.value }))}
                   className="rounded-md border border-neutral-300 px-3 py-2 text-sm shadow-sm focus:border-brand-600 focus:outline-none"
+                  disabled={!form.breeding_type}
                 >
                   <option value="">Sélectionner</option>
                   {species.data.map((sp) => (
@@ -152,7 +284,12 @@ export default function UnitsPage() {
               </label>
             </div>
             <div className="flex items-center gap-3">
-              <Button type="submit" disabled={creating || farms.data.length === 0 || species.data.length === 0}>
+              <Button
+                type="submit"
+                disabled={
+                  creating || farms.data.length === 0 || breedingTypes.data.length === 0 || !form.breeding_type || species.data.length === 0
+                }
+              >
                 {creating ? 'Création...' : 'Créer une unité'}
               </Button>
               {submitMessage && (
