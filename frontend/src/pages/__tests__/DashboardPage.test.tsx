@@ -13,7 +13,7 @@ vi.mock('../../hooks/useFarms', () => ({
 }))
 
 const mockedUseDashboardSummary = vi.mocked(useDashboardSummary)
-const mockedUseFarms = vi.mocked(useFarms)
+const mockedUseFarms = vi.mocked(useFarms) as unknown as { mockReturnValue: (value: any) => void; mockReset: () => void }
 
 describe('DashboardPage', () => {
   beforeEach(() => {

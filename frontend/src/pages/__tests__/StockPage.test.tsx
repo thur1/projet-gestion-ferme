@@ -20,7 +20,7 @@ vi.mock('../../hooks/useLots', () => ({
 }))
 
 const mockedUseStockItems = vi.mocked(useStockItems)
-const mockedUseFarms = vi.mocked(useFarms)
+const mockedUseFarms = vi.mocked(useFarms) as unknown as { mockReturnValue: (value: any) => void; mockReset: () => void }
 const mockedUseStockMovements = vi.mocked(useStockMovements)
 const mockedUseLots = vi.mocked(useLots)
 

@@ -25,7 +25,7 @@ vi.mock('../../hooks/useBreedingTypes', () => ({
 
 const mockedUseLots = vi.mocked(useLots)
 const mockedUseUnits = vi.mocked(useUnits)
-const mockedUseFarms = vi.mocked(useFarms)
+const mockedUseFarms = vi.mocked(useFarms) as unknown as { mockReturnValue: (value: any) => void; mockReset: () => void }
 const mockedUseSpecies = vi.mocked(useSpecies)
 const mockedUseBreedingTypes = vi.mocked(useBreedingTypes)
 
@@ -188,7 +188,7 @@ describe('LotsPage', () => {
 
     fireEvent.change(screen.getByLabelText(/nom de l['’]espèce/i), { target: { value: 'Bovin' } })
     fireEvent.change(screen.getByLabelText(/code \(unique\)/i), { target: { value: 'bov' } })
-    fireEvent.change(screen.getByLabelText(/type d['’]élevage/i), { target: { value: 'bt1' } })
+    fireEvent.change(screen.getAllByLabelText(/type d['’]élevage/i)[0], { target: { value: 'bt1' } })
     fireEvent.click(screen.getByRole('button', { name: /créer une espèce/i }))
 
     expect(createSpecies).toHaveBeenCalledWith({ code: 'BOV', name: 'Bovin', breeding_type: 'bt1' })

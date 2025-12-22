@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useUnits } from '../hooks/useUnits'
 import { useFarms } from '../hooks/useFarms'
 import { useSpecies } from '../hooks/useSpecies'
@@ -21,6 +21,9 @@ export default function UnitsPage() {
   const [farmMessage, setFarmMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null)
   const [enterpriseForm, setEnterpriseForm] = useState({ name: '' })
   const [enterpriseMessage, setEnterpriseMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null)
+  const breedingDropdownRef = useRef<HTMLDivElement | null>(null)
+  const breedingSelectRef = useRef<HTMLSelectElement | null>(null)
+  const [breedingDropdownOpen, setBreedingDropdownOpen] = useState(false)
 
   const isLoading = loading || farms.loading || species.loading
   const hasError = error || farms.error || species.error || breedingTypes.error
@@ -28,8 +31,26 @@ export default function UnitsPage() {
   const farmName = (id: string) => farms.data.find((f) => f.id === id)?.name || id
   const speciesLabel = (id: string) => {
     const found = species.data.find((s) => s.id === id)
-    return found ? `${found.name} (${found.code})` : id
+    if (!found) return id
+    return found.name || found.code || id
   }
+  const breedingLabel = (id: string) => breedingTypes.data.find((bt) => bt.id === id)?.name || 'Sélectionner'
+
+  const handleBreedingChange = (value: string) => {
+    setSelectedBreedingType(value)
+    setForm((prev) => ({ ...prev, breeding_type: value, species: '' }))
+  }
+
+  useEffect(() => {
+    if (!breedingDropdownOpen) return
+    const handler = (e: MouseEvent) => {
+      if (breedingDropdownRef.current && !breedingDropdownRef.current.contains(e.target as Node)) {
+        setBreedingDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [breedingDropdownOpen])
 
   const filteredUnits = useMemo(() => {
     if (selectedFarm === 'all') return data
@@ -232,22 +253,58 @@ export default function UnitsPage() {
               </label>
               <label className="grid gap-1 text-sm font-medium text-neutral-800">
                 Type d’Élevages
-                <select
-                  value={form.breeding_type}
-                  onChange={(e) => {
-                    const value = e.target.value
-                    setSelectedBreedingType(value)
-                    setForm((prev) => ({ ...prev, breeding_type: value, species: '' }))
-                  }}
-                  className="rounded-md border border-neutral-300 px-3 py-2 text-sm shadow-sm focus:border-brand-600 focus:outline-none"
-                >
-                  <option value="">Sélectionner</option>
-                  {breedingTypes.data.map((bt) => (
-                    <option key={bt.id} value={bt.id}>
-                      {bt.name} ({bt.code})
-                    </option>
-                  ))}
-                </select>
+                <div className="relative" ref={breedingDropdownRef}>
+                  <button
+                    type="button"
+                    className="flex w-full items-center justify-between rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-600 focus:outline-none"
+                    onClick={() => setBreedingDropdownOpen((v) => !v)}
+                  >
+                    <span className={form.breeding_type ? 'text-neutral-900' : 'text-neutral-500'}>
+                      {breedingLabel(form.breeding_type)}
+                    </span>
+                    <span aria-hidden="true">▾</span>
+                  </button>
+                  {breedingDropdownOpen && (
+                    <div className="absolute z-20 mt-1 w-full max-h-60 overflow-y-auto rounded-md border border-neutral-200 bg-white shadow-lg">
+                      <button
+                        type="button"
+                        className="flex w-full items-center justify-start px-3 py-2 text-left text-sm text-neutral-600 hover:bg-neutral-100"
+                        onClick={() => {
+                          handleBreedingChange('')
+                          setBreedingDropdownOpen(false)
+                        }}
+                      >
+                        Sélectionner
+                      </button>
+                      {breedingTypes.data.map((bt) => (
+                        <button
+                          key={bt.id}
+                          type="button"
+                          className="flex w-full items-center justify-start px-3 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-100"
+                          onClick={() => {
+                            handleBreedingChange(bt.id)
+                            setBreedingDropdownOpen(false)
+                          }}
+                        >
+                          {bt.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <select
+                    value={form.breeding_type}
+                    ref={breedingSelectRef}
+                    onChange={(e) => handleBreedingChange(e.target.value)}
+                    className="sr-only"
+                  >
+                    <option value="">Sélectionner</option>
+                    {breedingTypes.data.map((bt) => (
+                      <option key={bt.id} value={bt.id}>
+                        {bt.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </label>
               <label className="grid gap-1 text-sm font-medium text-neutral-800">
                 Espèce / catégorie
@@ -260,7 +317,7 @@ export default function UnitsPage() {
                   <option value="">Sélectionner</option>
                   {species.data.map((sp) => (
                     <option key={sp.id} value={sp.id}>
-                      {sp.name} ({sp.code})
+                      {sp.name}
                     </option>
                   ))}
                 </select>

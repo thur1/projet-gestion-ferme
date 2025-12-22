@@ -20,7 +20,7 @@ vi.mock('../../hooks/useBreedingTypes', () => ({
 }))
 
 const mockedUseUnits = vi.mocked(useUnits)
-const mockedUseFarms = vi.mocked(useFarms)
+const mockedUseFarms = vi.mocked(useFarms) as unknown as { mockReturnValue: (value: any) => void; mockReset: () => void }
 const mockedUseSpecies = vi.mocked(useSpecies)
 const mockedUseBreedingTypes = vi.mocked(useBreedingTypes)
 
@@ -179,7 +179,7 @@ describe('UnitsPage', () => {
     expect(screen.getByText(/poulailler a/i)).toBeInTheDocument()
     expect(screen.getByText(/capacité: 1200/i)).toBeInTheDocument()
     expect(screen.getAllByText(/ferme nord/i).length).toBeGreaterThanOrEqual(1)
-    expect(screen.getAllByText(/porcin \(pig\)/i).length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText(/porcin/i).length).toBeGreaterThanOrEqual(1)
   })
 
   it('filtre par ferme sélectionnée', () => {

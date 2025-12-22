@@ -22,7 +22,7 @@ vi.mock('../../hooks/useFarms', () => ({
 const mockedUseHealthEvents = vi.mocked(useHealthEvents)
 const mockedUseLots = vi.mocked(useLots)
 const mockedUseUnits = vi.mocked(useUnits)
-const mockedUseFarms = vi.mocked(useFarms)
+const mockedUseFarms = vi.mocked(useFarms) as unknown as { mockReturnValue: (value: any) => void; mockReset: () => void }
 
 describe('SantePage', () => {
   beforeEach(() => {

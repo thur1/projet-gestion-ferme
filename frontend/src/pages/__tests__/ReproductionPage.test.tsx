@@ -9,7 +9,7 @@ vi.mock('../../hooks/useFarms', () => ({ useFarms: vi.fn() }))
 vi.mock('../../hooks/useLots', () => ({ useLots: vi.fn() }))
 vi.mock('../../hooks/useReproductionEvents', () => ({ useReproductionEvents: vi.fn() }))
 
-const mockedUseFarms = vi.mocked(useFarms)
+const mockedUseFarms = vi.mocked(useFarms) as unknown as { mockReturnValue: (value: any) => void; mockReset: () => void }
 const mockedUseLots = vi.mocked(useLots)
 const mockedUseRepro = vi.mocked(useReproductionEvents)
 
