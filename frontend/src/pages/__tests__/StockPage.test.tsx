@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it, beforeEach, vi } from 'vitest'
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import StockPage from '../Stock'
 import { useStockItems } from '../../hooks/useStockItems'
 import { useFarms } from '../../hooks/useFarms'

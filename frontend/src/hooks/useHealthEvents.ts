@@ -25,7 +25,7 @@ export function useHealthEvents(filters?: { lot_id?: string; date_from?: string;
     return () => {
       mounted = false
     }
-  }, [filters?.lot_id, filters?.date_from, filters?.date_to])
+  }, [filters])
 
   const createEvent = useCallback(async (payload: CreateHealthEventPayload) => {
     setCreating(true)

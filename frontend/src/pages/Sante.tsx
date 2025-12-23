@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useHealthEvents } from '../hooks/useHealthEvents'
 import { useLots } from '../hooks/useLots'
 import { useUnits } from '../hooks/useUnits'
@@ -54,19 +54,16 @@ export default function SantePage() {
     })
   }, [lots.data, selectedFarm, unitById])
 
-  useEffect(() => {
-    if (availableLots.length === 0) {
-      setForm((prev) => ({ ...prev, lot: '' }))
-      setLotFilter('all')
-      return
-    }
-    if (!form.lot || !availableLots.some((l) => l.id === form.lot)) {
-      setForm((prev) => ({ ...prev, lot: availableLots[0].id }))
-    }
-    if (lotFilter !== 'all' && !availableLots.some((l) => l.id === lotFilter)) {
-      setLotFilter('all')
-    }
-  }, [availableLots, form.lot, lotFilter])
+  const currentLot = useMemo(() => {
+    if (availableLots.length === 0) return ''
+    if (form.lot && availableLots.some((l) => l.id === form.lot)) return form.lot
+    return availableLots[0].id
+  }, [availableLots, form.lot])
+
+  const currentLotFilter = useMemo(() => {
+    if (lotFilter === 'all') return 'all'
+    return availableLots.some((l) => l.id === lotFilter) ? lotFilter : 'all'
+  }, [availableLots, lotFilter])
 
   const farmName = (id: string) => farms.data.find((f) => f.id === id)?.name || id
   const eventFarmName = (lotId: string) => {
@@ -81,13 +78,13 @@ export default function SantePage() {
       const unitId = lotById.get(ev.lot)?.unit
       const farmId = unitId ? unitById.get(unitId)?.farm : undefined
       const matchesFarm = selectedFarm === 'all' ? true : farmId === selectedFarm
-      const matchesLot = lotFilter === 'all' ? true : ev.lot === lotFilter
+      const matchesLot = currentLotFilter === 'all' ? true : ev.lot === currentLotFilter
       const matchesType = typeFilter === 'all' ? true : ev.event_type === typeFilter
       const matchesFrom = dateFrom ? ev.date >= dateFrom : true
       const matchesTo = dateTo ? ev.date <= dateTo : true
       return matchesFarm && matchesLot && matchesType && matchesFrom && matchesTo
     })
-  }, [data, selectedFarm, lotFilter, lotById, unitById, typeFilter, dateFrom, dateTo])
+  }, [data, selectedFarm, currentLotFilter, lotById, unitById, typeFilter, dateFrom, dateTo])
 
   if (isLoading) {
     return (
@@ -174,7 +171,7 @@ export default function SantePage() {
             <select
               id="lot-filter-health"
               className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800 shadow-sm focus:border-brand-600 focus:outline-none"
-              value={lotFilter}
+              value={currentLotFilter}
               onChange={(e) => setLotFilter(e.target.value)}
             >
               <option value="all">Tous</option>
@@ -192,11 +189,11 @@ export default function SantePage() {
             onSubmit={async (e) => {
               e.preventDefault()
               setSubmitMessage(null)
-              if (!form.lot) {
+              if (!currentLot) {
                 setSubmitMessage({ type: 'error', text: 'Veuillez sélectionner un lot' })
                 return
               }
-              const result = await createEvent(form)
+              const result = await createEvent({ ...form, lot: currentLot })
               if (result.success) {
                 setSubmitMessage({ type: 'success', text: 'Événement ajouté' })
                 setForm((prev) => ({ ...prev, notes: '', product: '' }))
@@ -251,7 +248,7 @@ export default function SantePage() {
               <label className="grid gap-1 text-sm font-medium text-neutral-800">
                 Lot
                 <select
-                  value={form.lot}
+                  value={currentLot}
                   onChange={(e) => setForm((prev) => ({ ...prev, lot: e.target.value }))}
                   className="rounded-md border border-neutral-300 px-3 py-2 text-sm shadow-sm focus:border-brand-600 focus:outline-none"
                 >

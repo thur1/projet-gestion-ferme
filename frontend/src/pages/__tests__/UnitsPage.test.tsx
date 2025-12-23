@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import UnitsPage from '../Units'
 import { useUnits } from '../../hooks/useUnits'
 import { useFarms } from '../../hooks/useFarms'
@@ -44,7 +45,7 @@ describe('UnitsPage', () => {
       creatingEnterprise: false,
     })
     mockedUseBreedingTypes.mockReturnValue({ data: [], loading: false, error: '' })
-    mockedUseSpecies.mockReturnValue({ data: [], loading: false, error: '' })
+    mockedUseSpecies.mockReturnValue({ data: [], loading: false, error: '', create: vi.fn(), creating: false })
 
     render(<UnitsPage />)
 
@@ -65,7 +66,7 @@ describe('UnitsPage', () => {
       creatingEnterprise: false,
     })
     mockedUseBreedingTypes.mockReturnValue({ data: [], loading: false, error: '' })
-    mockedUseSpecies.mockReturnValue({ data: [], loading: false, error: '' })
+    mockedUseSpecies.mockReturnValue({ data: [], loading: false, error: '', create: vi.fn(), creating: false })
 
     render(<UnitsPage />)
 
@@ -85,7 +86,7 @@ describe('UnitsPage', () => {
       creatingEnterprise: false,
     })
     mockedUseBreedingTypes.mockReturnValue({ data: [], loading: false, error: '' })
-    mockedUseSpecies.mockReturnValue({ data: [], loading: false, error: '' })
+    mockedUseSpecies.mockReturnValue({ data: [], loading: false, error: '', create: vi.fn(), creating: false })
 
     render(<UnitsPage />)
 
@@ -108,7 +109,7 @@ describe('UnitsPage', () => {
       createEnterprise,
       creatingEnterprise: false,
     })
-    mockedUseSpecies.mockReturnValue({ data: [], loading: false, error: '' })
+    mockedUseSpecies.mockReturnValue({ data: [], loading: false, error: '', create: vi.fn(), creating: false })
 
     render(<UnitsPage />)
 
@@ -138,7 +139,7 @@ describe('UnitsPage', () => {
       creatingEnterprise: false,
     })
     mockedUseBreedingTypes.mockReturnValue({ data: [{ id: 'bt1', code: 'BOV', name: 'Bovin' }], loading: false, error: '' })
-    mockedUseSpecies.mockReturnValue({ data: [{ id: 'sp1', code: 'COW', name: 'Bovin', breeding_type: 'bt1' }], loading: false, error: '' })
+    mockedUseSpecies.mockReturnValue({ data: [{ id: 'sp1', code: 'COW', name: 'Bovin', breeding_type: 'bt1' }], loading: false, error: '', create: vi.fn(), creating: false })
 
     render(<UnitsPage />)
 
@@ -172,7 +173,7 @@ describe('UnitsPage', () => {
       creatingEnterprise: false,
     })
     mockedUseBreedingTypes.mockReturnValue({ data: [{ id: 'bt1', code: 'PIG', name: 'Porcin' }], loading: false, error: '' })
-    mockedUseSpecies.mockReturnValue({ data: [{ id: 'sp1', code: 'PIG', name: 'Porcin', breeding_type: 'bt1' }], loading: false, error: '' })
+    mockedUseSpecies.mockReturnValue({ data: [{ id: 'sp1', code: 'PIG', name: 'Porcin', breeding_type: 'bt1' }], loading: false, error: '', create: vi.fn(), creating: false })
 
     render(<UnitsPage />)
 
@@ -207,7 +208,7 @@ describe('UnitsPage', () => {
       creatingEnterprise: false,
     })
     mockedUseBreedingTypes.mockReturnValue({ data: [{ id: 'bt1', code: 'PIG', name: 'Porcin' }], loading: false, error: '' })
-    mockedUseSpecies.mockReturnValue({ data: [{ id: 'sp1', code: 'PIG', name: 'Porcin', breeding_type: 'bt1' }], loading: false, error: '' })
+    mockedUseSpecies.mockReturnValue({ data: [{ id: 'sp1', code: 'PIG', name: 'Porcin', breeding_type: 'bt1' }], loading: false, error: '', create: vi.fn(), creating: false })
 
     render(<UnitsPage />)
 

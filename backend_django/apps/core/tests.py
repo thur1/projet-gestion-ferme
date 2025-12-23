@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 
-from apps.core.models import Enterprise, Farm, Species, Unit, Lot, StockItem, Membership, HealthEvent
+from apps.core.models import Enterprise, Farm, Species, Unit, Lot, StockItem, Membership, HealthEvent, BreedingType
 
 User = get_user_model()
 
@@ -15,8 +15,17 @@ class CoreApiTests(APITestCase):
         self.enterprise = Enterprise.objects.create(name='Ent', owner=self.user)
         Membership.objects.create(user=self.user, enterprise=self.enterprise, role='owner')
         self.farm = Farm.objects.create(name='Farm', enterprise=self.enterprise)
-        self.species, _ = Species.objects.get_or_create(code='poultry_broiler', defaults={'name': 'Volaille'})
-        self.unit = Unit.objects.create(name='Unit', farm=self.farm, species=self.species, capacity=100)
+        self.breeding_type = BreedingType.objects.create(code='POU', name='Volaille')
+        self.species, _ = Species.objects.get_or_create(
+            code='poultry_broiler', defaults={'name': 'Volaille', 'breeding_type': self.breeding_type}
+        )
+        # Align seeded species with the breeding type used in tests to avoid validation mismatches
+        if self.species.breeding_type_id != self.breeding_type.id:
+            self.species.breeding_type = self.breeding_type
+            self.species.save(update_fields=['breeding_type'])
+        self.unit = Unit.objects.create(
+            name='Unit', farm=self.farm, species=self.species, breeding_type=self.breeding_type, capacity=100
+        )
         self.lot = Lot.objects.create(unit=self.unit, species=self.species, code='LOT1', entry_date='2025-01-01', initial_count=100)
         self.stock_item = StockItem.objects.create(farm=self.farm, name='Feed', item_type='feed', quantity=10, unit='kg', alert_threshold=5)
 

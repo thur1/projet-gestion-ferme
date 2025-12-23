@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { MemoryRouter } from 'react-router-dom'
 import DashboardPage from '../Dashboard'
 import { useDashboardSummary } from '../../hooks/useDashboardSummary'

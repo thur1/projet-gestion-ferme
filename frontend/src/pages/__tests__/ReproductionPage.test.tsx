@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import ReproductionPage from '../Reproduction'
 import { useFarms } from '../../hooks/useFarms'
 import { useLots } from '../../hooks/useLots'

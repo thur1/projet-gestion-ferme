@@ -17,7 +17,7 @@ export default function UnitsPage() {
   const [selectedFarm, setSelectedFarm] = useState<string>('all')
   const [form, setForm] = useState({ farm: '', breeding_type: '', species: '', name: '', capacity: 0 })
   const [submitMessage, setSubmitMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null)
-  const [farmForm, setFarmForm] = useState({ name: '', location: '' })
+  const [farmForm, setFarmForm] = useState({ name: '', location: '', enterprise: '' })
   const [farmMessage, setFarmMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null)
   const [enterpriseForm, setEnterpriseForm] = useState({ name: '' })
   const [enterpriseMessage, setEnterpriseMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null)
@@ -63,14 +63,19 @@ export default function UnitsPage() {
       setFarmMessage({ type: 'error', text: 'Nom de la ferme requis' })
       return
     }
-    if (!farms.enterprises.length) {
+    if (!farms.enterprises.length && !farmForm.enterprise) {
       setFarmMessage({ type: 'error', text: 'Créez d’abord une entreprise' })
       return
     }
-    const result = await farms.create({ name: farmForm.name.trim(), location: farmForm.location.trim() })
+    const targetEnterprise = farmForm.enterprise || farms.enterprises[0]?.id
+    if (!targetEnterprise) {
+      setFarmMessage({ type: 'error', text: 'Aucune entreprise disponible' })
+      return
+    }
+    const result = await farms.create({ name: farmForm.name.trim(), location: farmForm.location.trim(), enterprise: targetEnterprise })
     if (result.success) {
       setFarmMessage({ type: 'success', text: 'Ferme créée' })
-      setFarmForm({ name: '', location: '' })
+      setFarmForm({ name: '', location: '', enterprise: '' })
       setForm((prev) => ({ ...prev, farm: result.farm.id }))
       setSelectedFarm(result.farm.id)
     } else {
@@ -121,23 +126,66 @@ export default function UnitsPage() {
         <CardHeader>
           <CardTitle>Unités</CardTitle>
           <CardDescription>Liste des unités par ferme/type d’Élevages.</CardDescription>
-          <div className="mt-3 flex flex-wrap items-center gap-3">
-            <label className="text-sm font-medium text-neutral-700" htmlFor="farm-filter">
-              Filtrer par ferme
-            </label>
-            <select
-              id="farm-filter"
-              className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800 shadow-sm focus:border-brand-600 focus:outline-none"
-              value={selectedFarm}
-              onChange={(e) => setSelectedFarm(e.target.value)}
-            >
-              <option value="all">Toutes les fermes</option>
-              {farms.data.map((farm) => (
-                <option key={farm.id} value={farm.id}>
-                  {farm.name}
-                </option>
-              ))}
-            </select>
+          <div className="mt-3 grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
+            <div className="flex flex-wrap items-center gap-3">
+              <label className="text-sm font-medium text-neutral-700" htmlFor="farm-filter">
+                Filtrer par ferme
+              </label>
+              <select
+                id="farm-filter"
+                className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800 shadow-sm focus:border-brand-600 focus:outline-none"
+                value={selectedFarm}
+                onChange={(e) => setSelectedFarm(e.target.value)}
+              >
+                <option value="all">Toutes les fermes</option>
+                {farms.data.map((farm) => (
+                  <option key={farm.id} value={farm.id}>
+                    {farm.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {farms.enterprises.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2">
+                <Input
+                  value={farmForm.name}
+                  onChange={(e) => setFarmForm((prev) => ({ ...prev, name: e.target.value }))}
+                  placeholder="Nom de la ferme"
+                  className="w-40"
+                />
+                <Input
+                  value={farmForm.location}
+                  onChange={(e) => setFarmForm((prev) => ({ ...prev, location: e.target.value }))}
+                  placeholder="Localisation (opt.)"
+                  className="w-40"
+                />
+                <select
+                  className="rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800 shadow-sm focus:border-brand-600 focus:outline-none"
+                  value={farmForm.enterprise || ''}
+                  onChange={(e) => setFarmForm((prev) => ({ ...prev, enterprise: e.target.value }))}
+                >
+                  <option value="">Entreprise pour la prochaine ferme</option>
+                  {farms.enterprises.map((ent) => (
+                    <option key={ent.id} value={ent.id}>
+                      {ent.name}
+                    </option>
+                  ))}
+                </select>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleCreateFarm}
+                  disabled={farms.creating || !farmForm.name.trim()}
+                >
+                  {farms.creating ? 'Création...' : 'Créer une ferme'}
+                </Button>
+                {farmMessage && (
+                  <p className={farmMessage.type === 'error' ? 'text-xs text-red-600' : 'text-xs text-green-700'}>
+                    {farmMessage.text}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </CardHeader>
 
@@ -179,7 +227,7 @@ export default function UnitsPage() {
               <p className="text-sm font-medium text-amber-900">
                 Aucune ferme disponible. Créez une ferme pour ajouter des unités.
               </p>
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                 <label className="grid gap-1 text-sm font-medium text-neutral-800">
                   Nom de la ferme
                   <Input
@@ -195,6 +243,21 @@ export default function UnitsPage() {
                     onChange={(e) => setFarmForm((prev) => ({ ...prev, location: e.target.value }))}
                     placeholder="Ville, région"
                   />
+                </label>
+                <label className="grid gap-1 text-sm font-medium text-neutral-800">
+                  Entreprise
+                  <select
+                    value={farmForm.enterprise}
+                    onChange={(e) => setFarmForm((prev) => ({ ...prev, enterprise: e.target.value }))}
+                    className="rounded-md border border-neutral-300 px-3 py-2 text-sm shadow-sm focus:border-brand-600 focus:outline-none"
+                  >
+                    <option value="">Sélectionner</option>
+                    {farms.enterprises.map((ent) => (
+                      <option key={ent.id} value={ent.id}>
+                        {ent.name}
+                      </option>
+                    ))}
+                  </select>
                 </label>
               </div>
               <div className="flex items-center gap-3">
@@ -370,7 +433,7 @@ export default function UnitsPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant="info">{farmName(unit.farm)}</Badge>
-                  <Badge>{speciesLabel(unit.species)}</Badge>
+                  <Badge>{speciesLabel(unit.species || '')}</Badge>
                 </div>
               </div>
             ))}

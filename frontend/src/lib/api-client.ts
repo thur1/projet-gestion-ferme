@@ -57,7 +57,10 @@ function unwrapList<T>(value: unknown): T[] {
 
 async function refreshAccessToken() {
   const { refresh } = getTokens()
-  if (!refresh) throw new Error('Refresh token manquant')
+  if (!refresh) {
+    clearTokens()
+    throw new Error('Refresh token manquant')
+  }
   const res = await request<LoginResponse>('auth/refresh/', {
     method: 'POST',
     body: JSON.stringify({ refresh }),
@@ -82,6 +85,7 @@ async function requestAuth<T>(path: string, init: RequestInit = {}, retry = true
       await refreshAccessToken()
       return requestAuth<T>(path, init, false)
     } catch {
+      clearTokens()
       throw new Error('Session expirée, reconnectez-vous')
     }
   }

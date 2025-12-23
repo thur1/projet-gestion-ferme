@@ -48,10 +48,10 @@ export function useFarms() {
     }
   }
 
-  const create = async (payload: { name: string; location?: string }) => {
+  const create = async (payload: { name: string; location?: string; enterprise?: string }) => {
     setCreating(true)
     try {
-      const enterpriseId = enterprises[0]?.id
+      const enterpriseId = payload.enterprise || enterprises[0]?.id
       if (!enterpriseId) {
         throw new Error('Aucune entreprise disponible pour créer une ferme')
       }

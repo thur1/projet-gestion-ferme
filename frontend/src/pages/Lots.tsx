@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLots } from '../hooks/useLots'
 import { useUnits } from '../hooks/useUnits'
 import { useFarms } from '../hooks/useFarms'
@@ -69,25 +69,30 @@ export default function LotsPage() {
     return species.data
   }, [species.data])
 
-  const generateLotCode = (entryDate?: string) => {
-    const datePart = (entryDate || new Date().toISOString().slice(0, 10)).replace(/-/g, '')
-    const seq = String(data.length + 1).padStart(3, '0')
-    return `LOT-${datePart}-${seq}`
-  }
+  const generateLotCode = useCallback(
+    (entryDate?: string) => {
+      const datePart = (entryDate || new Date().toISOString().slice(0, 10)).replace(/-/g, '')
+      const seq = String(data.length + 1).padStart(3, '0')
+      return `LOT-${datePart}-${seq}`
+    },
+    [data.length]
+  )
 
   useEffect(() => {
     if (!form.code && !codeTouched) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setForm((prev) => ({ ...prev, code: generateLotCode(prev.entry_date) }))
     }
-  }, [data.length, form.entry_date, codeTouched])
+  }, [data.length, form.entry_date, form.code, codeTouched, generateLotCode])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setForm((prev) => ({
       ...prev,
       entry_date: prev.entry_date || today,
       code: prev.code || generateLotCode(today),
     }))
-  }, [today])
+  }, [today, generateLotCode])
 
   const handleCreateSpecies = async () => {
     setSpeciesMessage(null)

@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import LotsPage from '../Lots'
 import { useLots } from '../../hooks/useLots'
 import { useUnits } from '../../hooks/useUnits'
@@ -98,7 +99,7 @@ describe('LotsPage', () => {
       error: '',
     })
     mockedUseSpecies.mockReturnValue({
-      data: [{ id: 'sp1', code: 'PIG', name: 'Porcin' }],
+      data: [{ id: 'sp1', code: 'PIG', name: 'Porcin', breeding_type: 'bt1' }],
       loading: false,
       error: '',
       create: vi.fn(),
@@ -148,7 +149,7 @@ describe('LotsPage', () => {
       error: '',
     })
     mockedUseSpecies.mockReturnValue({
-      data: [{ id: 'sp1', code: 'PIG', name: 'Porcin' }],
+      data: [{ id: 'sp1', code: 'PIG', name: 'Porcin', breeding_type: 'bt1' }],
       loading: false,
       error: '',
       create: vi.fn(),
